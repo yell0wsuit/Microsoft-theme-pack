@@ -33,9 +33,7 @@ jobs:
       - name: Dependencies
         run: |
           pip3 install beautifulsoup4 lxml
-          sudo apt-get update && sudo apt-get install setools lzip wine winetricks patchelf
-          wget -qO- "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.tar.gz" | sudo tar --wildcards -zxvf- -C ~ --strip-component=2 '*/wine/*' '*/linker/*'
-          winetricks msxml6
+          sudo apt-get update
           echo "163.172.251.201 store.rg-adguard.net" | sudo tee -a /etc/hosts
       - name: Download themes
         shell: python
@@ -50,20 +48,6 @@ jobs:
               "content-type": "application/x-www-form-urlencoded"
           })
           html = BeautifulSoup(res.content, "lxml")
-
-          a = html.find("a", string=re.compile(f"Microsoft\.UI\.Xaml\..*_{arch}_.*\.appx"))
-          link = a["href"]
-          print(f"downloading link: {link}", flush=True)
-          out_file = "xaml.appx"
-          if not os.path.isfile(out_file):
-              urllib.request.urlretrieve(link, out_file)
-
-          a = html.find("a", string=re.compile(f"Microsoft\.VCLibs\..*_{arch}_.*\.appx"))
-          link = a["href"]
-          print(f"downloading link: {link}", flush=True)
-          out_file = "vclibs.appx"
-          if not os.path.isfile(out_file):
-              urllib.request.urlretrieve(link, out_file)
 
           a = html.find("a", string=re.compile("Microsoft\..*\.appx"))
           link = a["href"]
