@@ -1,0 +1,75 @@
+# This is a basic workflow to help you get started with Actions
+
+name: Download Microsoft Themes
+
+# Controls when the workflow will run
+on:
+  # Triggers the workflow on push or pull request events but only for the main branch
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+    inputs:
+      productID_type:
+        description: "Product ID"
+        required: true
+        type: string
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  build:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-latest
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - uses: actions/checkout@v3
+
+      # Runs a set of commands using the runners shell
+      - name: Dependencies
+        run: |
+          pip3 install beautifulsoup4 lxml
+          sudo apt-get update && sudo apt-get install setools lzip wine winetricks patchelf
+          wget -qO- "$GITHUB_SERVER_URL/$GITHUB_REPOSITORY/archive/$GITHUB_REF.tar.gz" | sudo tar --wildcards -zxvf- -C ~ --strip-component=2 '*/wine/*' '*/linker/*'
+          winetricks msxml6
+          echo "163.172.251.201 store.rg-adguard.net" | sudo tee -a /etc/hosts
+      - name: Download themes
+        shell: python
+        run: |
+          import requests
+          from bs4 import BeautifulSoup
+          import re
+          import os
+          import urllib.request
+
+          res = requests.post("https://store.rg-adguard.net/api/GetFiles", f"type=ProductId&url=${{ github.event.inputs.productID_type }}&ring=RP&lang=en-US", headers={
+              "content-type": "application/x-www-form-urlencoded"
+          })
+          html = BeautifulSoup(res.content, "lxml")
+
+          a = html.find("a", string=re.compile(f"Microsoft\.UI\.Xaml\..*_{arch}_.*\.appx"))
+          link = a["href"]
+          print(f"downloading link: {link}", flush=True)
+          out_file = "xaml.appx"
+          if not os.path.isfile(out_file):
+              urllib.request.urlretrieve(link, out_file)
+
+          a = html.find("a", string=re.compile(f"Microsoft\.VCLibs\..*_{arch}_.*\.appx"))
+          link = a["href"]
+          print(f"downloading link: {link}", flush=True)
+          out_file = "vclibs.appx"
+          if not os.path.isfile(out_file):
+              urllib.request.urlretrieve(link, out_file)
+
+          a = html.find("a", string=re.compile("Microsoft\..*\.appx"))
+          link = a["href"]
+          print(f"downloading link: {link}", flush=True)
+          out_file = "a"
+          if not os.path.isfile(out_file):
+              urllib.request.urlretrieve(link, out_file)
+
+          print("done", flush=True)
