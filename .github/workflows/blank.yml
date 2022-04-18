@@ -45,8 +45,9 @@ jobs:
 
           a = html.find("a", string=re.compile("Microsoft\..*\.appx"))
           link = a["href"]
+          string = html.find(string=re.compile("Microsoft\..*\.appx"))
           print(f"downloading link: {link}", flush=True)
-          out_file = {link}
+          out_file = string
           if not os.path.isfile(out_file):
               urllib.request.urlretrieve(link, out_file)
 
