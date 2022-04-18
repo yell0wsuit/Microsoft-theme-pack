@@ -43,7 +43,7 @@ jobs:
           })
           html = BeautifulSoup(res.content, "lxml")
 
-          a = html.find("a", string=re.compile("MicrosoftCorporationII\.WindowsSubsystemForAndroid_.*\.msixbundle"))
+          a = html.find("a", string=re.compile("Microsoft\..*\.appx"))
           link = a["href"]
           print(f"downloading link: {link}", flush=True)
           out_file = {link}
