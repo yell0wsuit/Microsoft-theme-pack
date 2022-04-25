@@ -38,13 +38,13 @@ jobs:
           import os
           import urllib.request
 
-          res = requests.post("https://store.rg-adguard.net/api/GetFiles", f"type=ProductId&url="+${{ github.event.inputs.productID_type }}+"&ring=RP&lang=en-US", headers={
+          res = requests.post("https://store.rg-adguard.net/api/GetFiles", f"type=ProductId&url=${{ github.event.inputs.productID_type }}&ring=RP&lang=en-US", headers={
               "content-type": "application/x-www-form-urlencoded"
           })
           html = BeautifulSoup(res.content, "lxml")
 
           a = html.find("a", string=re.compile("Microsoft\..*\.appx"))
-          link = a["href"]
+          link = a['href']
           string = html.find(string=re.compile("Microsoft\..*\.appx"))
           print(f"downloading link: {link}", flush=True)
           out_file = string
