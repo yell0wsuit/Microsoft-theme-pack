@@ -38,7 +38,7 @@ jobs:
           import os
           import urllib.request
 
-          res = requests.post("https://store.rg-adguard.net/api/GetFiles", f"type=ProductId&url=${{ github.event.inputs.productID_type }}&ring=RP&lang=en-US", headers={
+          res = requests.post("https://store.rg-adguard.net/api/GetFiles", f"type=ProductId&url="+${{ github.event.inputs.productID_type }}+"&ring=RP&lang=en-US", headers={
               "content-type": "application/x-www-form-urlencoded"
           })
           html = BeautifulSoup(res.content, "lxml")
